@@ -1,6 +1,11 @@
 #ifndef _LMDSP_H_
 #define _LMDSP_H_
 
+#include <stdlib.h>
+#include <stdint.h>
+
+#include "parameter_controller.h"
+
 class LMAudioSignalProcessor {
     public:
     virtual bool reset(double _fs);
@@ -29,14 +34,14 @@ class SkeletonParameters : public ParameterConfig {
     }
 
     void setParameters() {
-        pconf[1].label = "asudh";
+        // pconf[1].label = "asudh";
         // pconf[0].label = "Pot 1";
         // pconf[0].type = param_type::kPot;
         // pconf[0].min = 0;
         // pconf[0].max = 1;
         // pconf[0].scale = param_scale::kLin;
 
-        setInitialParameterState();
+        //setInitialParameterState();
     }
 
     // datatype variable = 0;
@@ -76,13 +81,13 @@ class Skeleton : public LMAudioSignalProcessor {
 
 };
 
-class Passthrough : public LMAudioSignalProcessor {
+// class Passthrough : public LMAudioSignalProcessor {
 
-};
+// };
 
-class Waveshaper : public LMAudioSignalProcessor {
+// class Waveshaper : public LMAudioSignalProcessor {
 
-};
+// };
 
 
 

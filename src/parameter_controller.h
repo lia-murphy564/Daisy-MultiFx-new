@@ -7,9 +7,9 @@
 #include <math.h>
 #include <algorithm>
 
-#include "daisy.h"
-#include "daisysp.h"
-#include "daisy_seed.h"
+// #include "daisy.h"
+// #include "daisysp.h"
+// #include "daisy_seed.h"
 
 //#include "json.hpp"
 
@@ -119,26 +119,25 @@ public:
     }  
 };
 
-class ParameterConfig : public ParameterMap {
+class ParameterConfig {
 
     protected:
-        param_config pconf[10];
+        // param_config pconf[10];
         param params[10];
+        ParameterMap map;
     public:
 
-        virtual void setParameters() {
+        virtual void initParameters(param_config pconf[]) {
 
-            pconf[0].label = "Pot 1";
-            pconf[0].type = param_type::kPot;
-            pconf[0].min = 0;
-            pconf[0].max = 1;
-            pconf[0].scale = param_scale::kLin;
+            // pconf[0].label = "Pot 1";
+            // pconf[0].type = param_type::kPot;
+            // pconf[0].min = 0;
+            // pconf[0].max = 1;
+            // pconf[0].scale = param_scale::kLin;
 
-            setInitialParameterState();
-        }
+            int pconf_size = sizeof(pconf)/sizeof(pconf[0]);
 
-        void setInitialParameterState() {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 2; i++) {
                 params[i].label = pconf[i].label;
                 params[i].type = pconf[i].type;
                 params[i].min = pconf[i].min;
@@ -146,17 +145,31 @@ class ParameterConfig : public ParameterMap {
                 params[i].scale = pconf[i].scale;
                 params[i].val = 0;
                 params[i].index = i;
+                map.insert(params[i]);
+            }
+
+        }
+
+        void updateParameters(param_config pconf[]) {
+
+            for (int i = 0; i < 10; i++) {
+                params[i].label = pconf[i].label;
+                params[i].type = pconf[i].type;
+                params[i].min = pconf[i].min;
+                params[i].max = pconf[i].max;
+                params[i].scale = pconf[i].scale;
+                params[i].val = clamp(params[i].val, params[i].min, params[i].max);
+
+                map.updateMap(params[i]);
             }
         }
 
-        void updateParameters() {
-            // for (param p: params) {
-            //     update(p);
-            // }
-            for (int i = 0; i < 10; i++) {
-                updateMap(params[i]);
-                params[i].val = clamp(params[i].val, params[i].min, params[i].max);
-            }
+        void setParameterValue(int val, int index) {
+            map.setValueAtIndex(val, index);
+        }
+
+        float getParameterValue(int index) {
+            return map.getValue(index);
         }
 };
 

@@ -1,5 +1,9 @@
 #include "main.h"
 
+#include "daisy.h"
+#include "daisy_seed.h"
+#include "daisysp.h"
+
 //#include "libDaisy/Drivers/CMSIS/RTOS/Template/cmsis_os.h"
 //#include "CMSIS/RTOS2/Template/cmsis_os.h"
 
