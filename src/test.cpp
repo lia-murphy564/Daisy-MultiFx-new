@@ -10,7 +10,7 @@
     g++ -o test test.cpp -I/src
 */
  
-void PARAM_TEST() {
+void PARAMETER_CONFIG() {
     float paramVal = 0.0f;
     ParameterConfig conf;
     //ParameterMap map;
@@ -46,8 +46,33 @@ void PARAM_TEST() {
     }
 }
 
+    float processAudios(float xn) {
+        int curr_state = stateManager.getState();
+        Skeleton effect;
+
+        float yn = 0.0f;
+
+        switch (curr_state) {
+            case 0:
+                yn = effect.processAudioSample(xn);
+        }
+
+        return yn;    
+    }
+
+void AUDIO_PASSTHROUGH() {
+    StateManager stateManager;
+
+
+
+    float xn = 0.5f;
+    float yn = processAudios(xn);
+    std::cout << xn << " " << yn;
+}
+
 void RUN_ALL_TESTS() {
-    PARAM_TEST();
+    //PARAMETER_CONFIG();
+    AUDIO_PASSTHROUGH();
 }
 
 int main(void) {

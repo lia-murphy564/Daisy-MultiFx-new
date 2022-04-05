@@ -6,6 +6,7 @@
 #include <iterator>
 #include <math.h>
 #include <algorithm>
+#include "util.h"
 
 // #include "daisy.h"
 // #include "daisysp.h"
@@ -56,39 +57,7 @@ struct param {
     }
 };
 
-// float normalize(uint16_t value, float min, float max)
-//     {
-//         int outputLimit = 256;
-
-//         float range = (max - min);// - float.Epsilon; // Here we shorten the range slightly
-
-//         // Then we build a range such that value >= 0 and value < 1
-//         float rangedValue = (value - min) / range;
-
-//         return min + (int)(outputLimit * rangedValue);
-//     }
-
-template<class T>
-constexpr const T& clamp( const T& v, const T& lo, const T& hi )
-{
-    int outputLimit = 256;
-    float range = (hi - lo);// - float.Epsilon;
-    float rangedValue = (v - lo) / range;
-    return lo + (int)(outputLimit * rangedValue);
-}
-
-
-template<class T>
-constexpr const float clamp( const float v, const float lo, const float hi )
-{
-    int outputLimit = 256;
-    float range = (hi - lo);// - float.Epsilon;
-    float rangedValue = (v - lo) / range;
-    return lo + (int)(outputLimit * rangedValue);
-}
-
 class ParameterMap {
-
 private:
     std::unordered_map<int, param> map;
     std::unordered_map<int, param>::iterator map_iter;
@@ -105,11 +74,12 @@ public:
 
     void updateMap(param p) {
         map[p.index] = p;
-    }
+    }                   
 
-    void setValueAtIndex(uint16_t val, uint16_t index) {
+    void setValueAtIndex(uint16_t val, int index) {
         param curr = map[index];
-        curr.val = val;
+        //curr.val = //(float)val;
+        curr.val = static_cast<float>(val);
         map[index] = curr;
     }
 
@@ -135,7 +105,7 @@ class ParameterConfig {
             // pconf[0].max = 1;
             // pconf[0].scale = param_scale::kLin;
 
-            int pconf_size = sizeof(pconf)/sizeof(pconf[0]);
+            int pconf_size = 10;//sizeof(pconf[])/sizeof(pconf[0]);
 
             for (int i = 0; i < 2; i++) {
                 params[i].label = pconf[i].label;

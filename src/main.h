@@ -1,4 +1,4 @@
 #include "lmdsp.hpp"
-#include "audiohandler.h"
+#include "audiohandler.hpp"
 #include "statemanager.h"
 #include "parameter_controller.h"

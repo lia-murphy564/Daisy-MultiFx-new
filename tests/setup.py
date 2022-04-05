@@ -8,5 +8,11 @@ setup(
     license='',
     author='Amelia',
     author_email='',
-    description=''
+    description='',
+
+    entry_points={
+        # 'my_ep_group_id': [
+        #     'my_ep_func = myns.mypkg.mymodule:the_function'
+        # ]
+    }
 )

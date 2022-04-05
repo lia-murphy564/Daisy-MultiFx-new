@@ -4,6 +4,8 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
 
+#include "util.h"
+
 //#include "libDaisy/Drivers/CMSIS/RTOS/Template/cmsis_os.h"
 //#include "CMSIS/RTOS2/Template/cmsis_os.h"
 
@@ -93,7 +95,7 @@ float paramVal;
 
 //stateId state;
 ParameterConfig paramConf;
-ParameterMap parameterMap;
+
 
 constexpr const float clamp( const float v, const float lo, const float hi )
 {
@@ -104,15 +106,53 @@ constexpr const float clamp( const float v, const float lo, const float hi )
 }
 
 daisysp::Phaser phaser;
+//float gain = 0.0f;
+//ParameterRamper paramRamper(gain);
+//SmoothedValue<float> gain;
+//std::vector<void*> effect_bank;
+float params[10];
+ParameterMap parameterMap;
+static daisysp::Autowah _autowah;
+static daisysp::Overdrive _overdrive;
 
 void AudioCallback(daisy::AudioHandle::InputBuffer in, daisy::AudioHandle::OutputBuffer out, size_t size)
 { 
+	// for (size_t i = 0; i < size; i++)
+    // {
+	//  		out[0][i] = in[0][i];
+	// 		out[1][i] = in[1][i];
+	// }
+	//void* effect;
+	int state = 1;
+	float xnL, xnR, ynL, ynR;
+	//float params[10];
+	//params[0] = parameterMap.getValue(0);
+	//params[1] = parameterMap.getValue(1);
+	//params[2] = parameterMap.getValue(2);	
+
+
     for (size_t i = 0; i < size; i++)
     {
-		out[0][i] = in[0][i];// * gain;
-		out[1][i] = in[1][i];// * gain;
+		xnL = xnR = in[1][i];
+		switch(state) {
+			case 0:
+				_autowah.SetWah(params[0]);
+				_autowah.SetLevel(params[1]);
+				_autowah.SetDryWet(params[2]);
+				ynL = ynR = _autowah.Process(xnL);
+			case 1:
+				ynL = ynR = xnL;
+			case 2:
+				_overdrive.SetDrive(params[1]/50);
+				ynL = ynR = _overdrive.Process(xnL);
+
+			//out[0][i] = ynL;//processAudio(in[0][i], &parameterMap);
+			out[1][i] = ynR;//processAudio(in[1][i], &parameterMap);
+		}
     }
 } 
+
+
 
 int main(void)
 {
@@ -120,19 +160,36 @@ int main(void)
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	hw.StartAudio(AudioCallback); // callback in AudioHandler.h
-	hw.StartLog(true);
-
+	//hw.StartLog(true);
 	UART_Init(usart1);
 
-	//parameterMap.init();
+	float fs = hw.AudioSampleRate();
 
-	param p[10];
+    //daisysp::Autowah* _autowah = new daisysp::Autowah;
+	//daisysp::Overdrive* _overdrive = new daisysp::Overdrive;
 
-	p[0].label = "Pot1";
-	p[0].val = 1;
-	p[0].type = param_type::kPot;
+    _autowah.Init(fs);
+	_overdrive.Init();
+	//_overdrive->Init();
 
-	parameterMap.insert(p[0]);
+
+	// param p[10];
+	// p[0].label = "Pot1";
+	// p[0].val = 1.0f;
+	// p[0].type = param_type::kPot;
+	// p[0].index = 1;
+	// parameterMap.insert(p[0]);
+	// parameterMap.setValueAtIndex(0.4f, p[0].index);
+	// float test = 1.2f;
+	//hw.PrintLine("%f", test);
+	//hw.PrintLine("INIT %u %u", p[0].index, parameterMap.getValue(p[0].index));	
+
+	// parameterMap.insert(p[4]);
+	// for (int i = 0; i < 10; i++) {
+	// 	parameterMap.insert(p[i]);
+	// 	hw.PrintLine("INIT %u %u", i, parameterMap.getValue(i));
+	// }
+
 
 		
 
@@ -151,6 +208,7 @@ int main(void)
 
 	while (true) {
 
+		// POLL BLE
 		 while (usart1.Readable()) {
 			
 			uint32_t curr_val = usart1.PopRx();
@@ -173,9 +231,22 @@ int main(void)
 					if (curr.index == index) {
 						curr.index = index;
 					}
-					parameterMap.setValueAtIndex(val, index);
+					params[index] = (float)val;
+					//hw.PrintLine("%u", params[index]);
+					//hw.PrintLine("SET: %u %u", val, index);
+					//parameterMap.setValueAtIndex(val, index);
+					//hw.PrintLine("%f", parameterMap.getValue(0));	
+					//gain = parameterMap.getValue(1) / 100;
+					//paramRamper.set(gain);
+					//paramRamper.startRamp(gain, 1);
+					//gain = paramRamper.getStep();
+					//gain.setTargetValue(parameterMap.getValue(1) / 100);
+					//hw.PrintLine("%u", gain);
+					//hw.PrintLine("GET: %f %u", parameterMap.getValue(index), index);
+	
 			 	}
 			}
+
 		 }
 		 
 
